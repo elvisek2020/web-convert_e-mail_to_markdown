@@ -39,6 +39,17 @@ code {
   color: #333;
 }
 
+.app-header h1 .header-link {
+  color: #333;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.app-header h1 .header-link:hover {
+  color: #4a90e2;
+  text-decoration: underline;
+}
+
 .subtitle {
   color: #666;
   font-size: 1.1rem;
