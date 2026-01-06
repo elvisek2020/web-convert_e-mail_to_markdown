@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="cs">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Convert e-mail to markdown - Konvertuje vloženy email na markdown format s prilohama" />
+    <title>Convert e-mail to markdown</title>
+    <link rel="stylesheet" href="/static/styles/main.css" />
+    <link rel="stylesheet" href="/static/styles/dropzone.css" />
+    <link rel="stylesheet" href="/static/styles/processing-status.css" />
+    <link rel="stylesheet" href="/static/styles/message-banner.css" />
+  </head>
+  <body>
+    <noscript>Pro spuštění aplikace musíte povolit JavaScript.</noscript>
+    
+    <div class="app">
+      <header class="app-header">
+        <h1>Convert e-mail to markdown</h1>
+        <p class="subtitle">Konvertuje vloženy email na markdown format s prilohama</p>
+      </header>
+
+      <main class="app-main">
+        <div class="input-section">
+          <div class="project-name-input box">
+            <label for="project-name">Název projektu:</label>
+            <input
+              id="project-name"
+              type="text"
+              class="project-input"
+              placeholder="Zadejte název projektu..."
+            />
+          </div>
+          
+          <div id="processing-overlay" class="processing-overlay" style="display: none;"></div>
+          
+          <div id="dropzone-container"></div>
+
+          <div id="message-banner" class="message-banner" style="display: none;"></div>
+        </div>
+      </main>
+
+      <footer class="app-footer">
+        <span id="version" class="version"></span>
+      </footer>
+    </div>
+
+    <script type="module" src="/static/app.js"></script>
+  </body>
+</html>
+

@@ -1,0 +1,15 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: convert-mail-to-markdown
+    hostname: convert-mail-to-markdown
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./output:/app/output
+    environment:
+      - ROOT_FOLDER=/app/output
+    restart: unless-stopped
+

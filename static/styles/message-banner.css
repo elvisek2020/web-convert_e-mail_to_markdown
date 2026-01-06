@@ -1,0 +1,20 @@
+.message-banner {
+  border-radius: 4px;
+  padding: 1rem;
+  text-align: center;
+  margin-top: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.message-banner.success {
+  background: #efe;
+  border: 2px solid #cfc;
+  color: #3c3;
+}
+
+.message-banner.error {
+  background: #fee;
+  border: 2px solid #fcc;
+  color: #c33;
+}
+

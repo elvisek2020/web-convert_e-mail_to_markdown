@@ -1,0 +1,150 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background: #fff;
+  border-bottom: 2px solid #e0e0e0;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.app-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.app-main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Box-style komponenty */
+.box {
+  background: #fff;
+  border: 2px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.box-title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.box-content {
+  color: #666;
+}
+
+.input-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.project-name-input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.project-name-input.box {
+  padding: 1.125rem; /* 1.5rem * 0.75 = zmenšeno o 1/4 */
+}
+
+.project-name-input label {
+  font-weight: 600;
+  color: #333;
+}
+
+.project-input {
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.project-input:focus {
+  outline: none;
+  border-color: #4a90e2;
+}
+
+.project-input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.processing-overlay {
+  margin-top: 1.5rem;
+}
+
+.message-banner {
+  border-radius: 4px;
+  padding: 1rem;
+  text-align: center;
+  margin-top: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.message-banner.success {
+  background: #efe;
+  border: 2px solid #cfc;
+  color: #3c3;
+}
+
+.message-banner.error {
+  background: #fee;
+  border: 2px solid #fcc;
+  color: #c33;
+}
+
+.app-footer {
+  background: #fff;
+  border-top: 2px solid #e0e0e0;
+  padding: 1rem 2rem;
+  text-align: center;
+  margin-top: auto;
+}
+
+.app-footer .version {
+  color: #999;
+  font-size: 0.9rem;
+}
+
