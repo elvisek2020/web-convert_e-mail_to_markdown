@@ -25,7 +25,10 @@ export class ProjectList {
   }
 
   render() {
-    if (!this.container) return;
+    if (!this.container) {
+      console.error('ProjectList: container is null');
+      return;
+    }
 
     if (this.projects.length === 0) {
       this.container.innerHTML = `
@@ -48,7 +51,7 @@ export class ProjectList {
 
     this.container.innerHTML = `
       <div class="project-list-content">
-        <h3 class="project-list-title">Existující projekty:</h3>
+        <h3 class="project-list-title">Seznam projektů</h3>
         <div class="project-list-items">
           ${projectsHtml}
         </div>

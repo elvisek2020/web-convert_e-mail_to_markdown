@@ -50,10 +50,6 @@ code {
   text-decoration: underline;
 }
 
-.subtitle {
-  color: #666;
-  font-size: 1.1rem;
-}
 
 .app-main {
   flex: 1;
