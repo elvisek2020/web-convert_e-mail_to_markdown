@@ -29,3 +29,6 @@ output/*
 
 # Docker
 .dockerignore
+
+# Git
+.gitignore
