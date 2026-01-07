@@ -16,9 +16,7 @@ Aplikace je určena pro uživatele, kteří potřebují systematicky archivovat 
 - ✅ **Seznam existujících projektů** - zobrazení všech existujících projektů s možností rychlého výběru
 - ✅ **Normalizace názvu projektu** - automatické odstranění diakritiky a speciálních znaků, ponechání jen alfanumerických znaků a podtržítka
 - ✅ **Kontrola duplicit** - zabraňuje přepsání existujících souborů se stejným datum_čas
-- ✅ **Jednotná aplikace** - frontend a backend v jednom Docker kontejneru
 - ✅ **Drag & drop upload** - jednoduché nahrávání souborů přes webové rozhraní
-- ✅ **Zobrazení verze** - verze aplikace je zobrazena v patičce
 
 ## 📖 Použití
 
@@ -356,25 +354,6 @@ Aplikace používá **box-style komponenty** pro konzistentní vzhled:
 - [Docker dokumentace](https://docs.docker.com/)
 - [GitHub Actions dokumentace](https://docs.github.com/en/actions)
 - [mail-parser dokumentace](https://github.com/SpamScope/mail-parser)
-
-## 📝 Historie změn
-
-### V20260107.2000
-- Přidán seznam existujících projektů s možností rychlého výběru
-- Přidán nadpis "Seznam projektů" do boxíku s projekty
-- Upravena šířka dropzone boxu (stejná jako ostatní boxy)
-- Zmenšena výška dropzone boxu o 1/5
-- Odebrán subtitle "Konvertuje vloženy email na markdown format s prilohama"
-- Přidán REST endpoint `/api/projects` pro získání seznamu projektů
-
-### V20260107.1803
-- Přidána normalizace názvu projektu (odstranění diakritiky, speciálních znaků)
-- Zlepšeno ukládání příloh (správné zpracování base64 kódování)
-- Přidán klikací nadpis s odkazem na hlavní stránku
-- Migrace z React na Vanilla JavaScript (ES6+)
-- Odstranění WebSocket API, použití pouze REST API
-- Aktualizace Dockerfile pro single-stage build
-- Přidání GitHub Actions workflow pro automatické buildy
 
 ## 📄 Licence
 
