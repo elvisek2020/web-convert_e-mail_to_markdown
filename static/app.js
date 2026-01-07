@@ -1,6 +1,7 @@
 import { Dropzone } from './components/dropzone.js';
 import { ProcessingStatus } from './components/processing-status.js';
 import { MessageBanner } from './components/message-banner.js';
+import { ProjectList } from './components/project-list.js';
 
 /**
  * Hlavní aplikace
@@ -16,6 +17,7 @@ class App {
     this.dropzone = null;
     this.processingStatus = null;
     this.messageBanner = null;
+    this.projectList = null;
 
     this.init();
   }
@@ -29,6 +31,11 @@ class App {
 
     // Nastavit event listenery
     this.setupEventListeners();
+
+    // Načíst seznam projektů
+    if (this.projectList) {
+      await this.projectList.loadProjects();
+    }
   }
 
   async loadVersion() {
@@ -59,6 +66,12 @@ class App {
     // Message Banner
     const messageBanner = document.getElementById('message-banner');
     this.messageBanner = new MessageBanner(messageBanner);
+
+    // Project List
+    const projectListContainer = document.getElementById('project-list-container');
+    this.projectList = new ProjectList(projectListContainer, (projectName) => {
+      this.handleProjectSelect(projectName);
+    });
   }
 
   setupEventListeners() {
@@ -67,6 +80,18 @@ class App {
     projectInput.addEventListener('input', (e) => {
       this.state.projectName = e.target.value;
     });
+  }
+
+  handleProjectSelect(projectName) {
+    // Vyplnit input pole názvem projektu
+    const projectInput = document.getElementById('project-name');
+    if (projectInput) {
+      projectInput.value = projectName;
+      this.state.projectName = projectName;
+      
+      // Focus na input pro lepší UX
+      projectInput.focus();
+    }
   }
 
   async handleFileDrop(file) {
@@ -113,6 +138,11 @@ class App {
     this.setState({ status: 'idle' });
     const message = `Email byl úspěšně uložen: ${result.filename}`;
     this.messageBanner.showSuccess(message);
+    
+    // Aktualizovat seznam projektů po úspěšném uložení
+    if (this.projectList) {
+      await this.projectList.loadProjects();
+    }
   }
 
   setState(newState) {

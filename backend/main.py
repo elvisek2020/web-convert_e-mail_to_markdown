@@ -35,6 +35,28 @@ async def get_version():
     return {"version": "unknown"}
 
 
+@app.get("/api/projects")
+async def get_projects():
+    """Vrátí seznam existujících projektů (složek v output/)"""
+    try:
+        output_path = Path(ROOT_FOLDER)
+        if not output_path.exists():
+            return {"projects": []}
+        
+        # Získat všechny složky v output/ (projekty)
+        projects = [
+            item.name for item in output_path.iterdir()
+            if item.is_dir() and not item.name.startswith('.')
+        ]
+        
+        # Seřadit abecedně
+        projects.sort()
+        
+        return {"projects": projects}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Chyba při načítání projektů: {str(e)}")
+
+
 @app.post("/api/convert-email")
 async def convert_email(
     file: UploadFile = File(...),
