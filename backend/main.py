@@ -41,23 +41,34 @@ async def get_projects():
     try:
         output_path = Path(ROOT_FOLDER)
         
-        # Debug: zkontrolovat, jestli cesta existuje
+        # Debug: logovat cestu
+        print(f"[DEBUG] ROOT_FOLDER: {ROOT_FOLDER}")
+        print(f"[DEBUG] output_path exists: {output_path.exists()}")
+        print(f"[DEBUG] output_path absolute: {output_path.absolute()}")
+        
         if not output_path.exists():
-            return {"projects": [], "debug": f"Path {output_path} does not exist"}
+            print(f"[DEBUG] Path {output_path} does not exist")
+            return {"projects": []}
         
         # Získat všechny složky v output/ (projekty)
+        all_items = list(output_path.iterdir())
+        print(f"[DEBUG] All items in {output_path}: {[item.name for item in all_items]}")
+        
         projects = []
-        for item in output_path.iterdir():
+        for item in all_items:
             if item.is_dir() and not item.name.startswith('.'):
                 projects.append(item.name)
+                print(f"[DEBUG] Found project: {item.name}")
         
         # Seřadit abecedně
         projects.sort()
         
+        print(f"[DEBUG] Returning projects: {projects}")
         return {"projects": projects}
     except Exception as e:
         import traceback
         error_detail = f"Chyba při načítání projektů: {str(e)}\n{traceback.format_exc()}"
+        print(f"[ERROR] {error_detail}")
         raise HTTPException(status_code=500, detail=error_detail)
 
 
