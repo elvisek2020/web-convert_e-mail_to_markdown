@@ -40,21 +40,25 @@ async def get_projects():
     """Vrátí seznam existujících projektů (složek v output/)"""
     try:
         output_path = Path(ROOT_FOLDER)
+        
+        # Debug: zkontrolovat, jestli cesta existuje
         if not output_path.exists():
-            return {"projects": []}
+            return {"projects": [], "debug": f"Path {output_path} does not exist"}
         
         # Získat všechny složky v output/ (projekty)
-        projects = [
-            item.name for item in output_path.iterdir()
-            if item.is_dir() and not item.name.startswith('.')
-        ]
+        projects = []
+        for item in output_path.iterdir():
+            if item.is_dir() and not item.name.startswith('.'):
+                projects.append(item.name)
         
         # Seřadit abecedně
         projects.sort()
         
         return {"projects": projects}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Chyba při načítání projektů: {str(e)}")
+        import traceback
+        error_detail = f"Chyba při načítání projektů: {str(e)}\n{traceback.format_exc()}"
+        raise HTTPException(status_code=500, detail=error_detail)
 
 
 @app.post("/api/convert-email")
