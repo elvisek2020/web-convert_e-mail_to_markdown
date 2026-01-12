@@ -2,6 +2,7 @@ import { Dropzone } from './components/dropzone.js';
 import { ProcessingStatus } from './components/processing-status.js';
 import { MessageBanner } from './components/message-banner.js';
 import { ProjectList } from './components/project-list.js';
+import { EmailList } from './components/email-list.js';
 
 /**
  * Hlavní aplikace
@@ -18,6 +19,7 @@ class App {
     this.processingStatus = null;
     this.messageBanner = null;
     this.projectList = null;
+    this.emailList = null;
 
     this.init();
   }
@@ -72,6 +74,10 @@ class App {
     this.projectList = new ProjectList(projectListContainer, (projectName) => {
       this.handleProjectSelect(projectName);
     });
+
+    // Email List
+    const emailListContainer = document.getElementById('email-list-container');
+    this.emailList = new EmailList(emailListContainer);
   }
 
   setupEventListeners() {
@@ -82,7 +88,7 @@ class App {
     });
   }
 
-  handleProjectSelect(projectName) {
+  async handleProjectSelect(projectName) {
     // Vyplnit input pole názvem projektu
     const projectInput = document.getElementById('project-name');
     if (projectInput) {
@@ -91,6 +97,11 @@ class App {
       
       // Focus na input pro lepší UX
       projectInput.focus();
+    }
+
+    // Načíst a zobrazit seznam emailů pro vybraný projekt
+    if (this.emailList) {
+      await this.emailList.loadEmails(projectName);
     }
   }
 
@@ -142,6 +153,11 @@ class App {
     // Aktualizovat seznam projektů po úspěšném uložení
     if (this.projectList) {
       await this.projectList.loadProjects();
+    }
+    
+    // Aktualizovat seznam emailů, pokud je projekt vybrán
+    if (this.emailList && this.state.projectName) {
+      await this.emailList.loadEmails(this.state.projectName);
     }
   }
 

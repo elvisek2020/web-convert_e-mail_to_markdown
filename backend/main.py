@@ -3,6 +3,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import os
 from pathlib import Path
+import yaml
+from datetime import datetime
 
 from services.email_processor import EmailProcessor
 from models.schemas import EmailMetadata
@@ -68,6 +70,88 @@ async def get_projects():
     except Exception as e:
         import traceback
         error_detail = f"Chyba při načítání projektů: {str(e)}\n{traceback.format_exc()}"
+        print(f"[ERROR] {error_detail}")
+        raise HTTPException(status_code=500, detail=error_detail)
+
+
+@app.get("/api/projects/{project_name}/emails")
+async def get_project_emails(project_name: str):
+    """Vrátí seznam emailů (markdown souborů) v projektu"""
+    try:
+        project_path = Path(ROOT_FOLDER) / project_name
+        
+        if not project_path.exists() or not project_path.is_dir():
+            raise HTTPException(status_code=404, detail=f"Projekt {project_name} neexistuje")
+        
+        emails = []
+        
+        # Načíst všechny .md soubory v projektu (kromě attachments složky)
+        for md_file in project_path.glob("*.md"):
+            try:
+                # Přečíst soubor
+                with open(md_file, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                
+                # Parsovat YAML front-matter
+                if content.startswith('---'):
+                    parts = content.split('---', 2)
+                    if len(parts) >= 3:
+                        yaml_content = parts[1].strip()
+                        front_matter = yaml.safe_load(yaml_content)
+                        
+                        # Extrahovat potřebné informace
+                        email_date_str = front_matter.get('date', '')
+                        email_date = None
+                        if email_date_str:
+                            try:
+                                # Zkusit ISO formát (s nebo bez timezone)
+                                if 'Z' in email_date_str:
+                                    email_date = datetime.fromisoformat(email_date_str.replace('Z', '+00:00'))
+                                elif '+' in email_date_str or email_date_str.count('-') >= 2:
+                                    # ISO formát s timezone nebo bez
+                                    email_date = datetime.fromisoformat(email_date_str.replace('+00:00', ''))
+                                else:
+                                    # Jiný formát - zkusit parsovat
+                                    email_date = datetime.fromisoformat(email_date_str)
+                            except:
+                                # Pokud selže parsing, zkusit extrahovat z názvu souboru
+                                try:
+                                    filename_parts = md_file.stem.split('_', 1)
+                                    if len(filename_parts) >= 1:
+                                        date_time_part = filename_parts[0]
+                                        # Formát: YYYY-MM-DD_HH-MM-SS
+                                        if len(date_time_part) >= 19:
+                                            email_date = datetime.strptime(date_time_part, '%Y-%m-%d_%H-%M-%S')
+                                        elif len(date_time_part) >= 10:
+                                            email_date = datetime.strptime(date_time_part, '%Y-%m-%d')
+                                except:
+                                    pass
+                        
+                        emails.append({
+                            "filename": md_file.name,
+                            "date": email_date.isoformat() if email_date else email_date_str,
+                            "from": front_matter.get('from', ''),
+                            "subject": front_matter.get('subject', ''),
+                            "date_obj": email_date  # Pro řazení
+                        })
+            except Exception as e:
+                print(f"[WARNING] Chyba při parsování souboru {md_file.name}: {str(e)}")
+                continue
+        
+        # Seřadit podle data (nejnovější nahoře)
+        emails.sort(key=lambda x: x.get('date_obj') or datetime.min, reverse=True)
+        
+        # Odstranit date_obj z výsledku (není potřeba v JSON)
+        for email in emails:
+            email.pop('date_obj', None)
+        
+        return {"emails": emails}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        error_detail = f"Chyba při načítání emailů: {str(e)}\n{traceback.format_exc()}"
         print(f"[ERROR] {error_detail}")
         raise HTTPException(status_code=500, detail=error_detail)
 
