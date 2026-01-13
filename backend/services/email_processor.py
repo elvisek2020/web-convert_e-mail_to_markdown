@@ -133,7 +133,7 @@ class EmailProcessor:
         temp_eml_path: Path,
         email_data: EmailMetadata,
         project_name: str,
-        project_in_inbox: bool = False,
+        project_in_inbox: bool = True,
         inbox_folder: str = None
     ) -> Dict[str, Any]:
         """
@@ -141,10 +141,12 @@ class EmailProcessor:
         Vrací dict s výsledkem nebo vyhodí výjimku pokud soubor existuje.
         
         Args:
-            project_in_inbox: Pokud True, ukládat do inbox_folder/project_name místo root/project_name
+            project_in_inbox: Pokud True, ukládat do inbox_folder/project_name. 
+                              Pokud None/True (výchozí), vytvoří nový projekt v INBOX_FOLDER.
             inbox_folder: Název inbox adresáře (např. "_from_email")
         """
         # Vytvořit cestu k projektu
+        # Výchozí je INBOX_FOLDER pro nové projekty
         if project_in_inbox and inbox_folder:
             project_path = self.root_folder / inbox_folder / project_name
         else:

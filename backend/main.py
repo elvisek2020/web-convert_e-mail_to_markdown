@@ -220,13 +220,26 @@ async def convert_email(
         output_path = Path(ROOT_FOLDER)
         inbox_path = output_path / INBOX_FOLDER
         
+        # Zkontrolovat, jestli projekt existuje v INBOX_FOLDER nebo v root
+        project_in_inbox = None  # None = nový projekt, použije se výchozí (INBOX_FOLDER)
+        
         # Zkontrolovat, jestli projekt existuje v INBOX_FOLDER
-        project_in_inbox = False
         if inbox_path.exists() and inbox_path.is_dir():
             potential_path = inbox_path / project_name
             if potential_path.exists() and potential_path.is_dir():
                 project_in_inbox = True
                 print(f"[DEBUG] Project {project_name} found in {INBOX_FOLDER}, will save there")
+        
+        # Pokud nebyl nalezen v INBOX_FOLDER, zkontrolovat v root
+        if project_in_inbox is None:
+            potential_path = output_path / project_name
+            if potential_path.exists() and potential_path.is_dir():
+                project_in_inbox = False
+                print(f"[DEBUG] Project {project_name} found in root, will save there")
+            else:
+                # Projekt neexistuje - vytvořit v INBOX_FOLDER (výchozí)
+                project_in_inbox = True
+                print(f"[DEBUG] Project {project_name} does not exist, will create in {INBOX_FOLDER} (default)")
         
         # Uložit dočasně soubor
         temp_path = await email_processor.save_temp_file(file)
