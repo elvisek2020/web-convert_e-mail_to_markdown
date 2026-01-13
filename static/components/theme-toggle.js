@@ -5,23 +5,17 @@ export class ThemeToggle {
   constructor(container) {
     this.container = container;
     this.currentTheme = this.getStoredTheme() || 'light';
+    
+    // Nastavit počáteční téma okamžitě (před renderováním)
+    this.applyTheme(this.currentTheme);
+    
+    // Vytvořit UI
     this.init();
   }
 
   init() {
-    // Nastavit počáteční téma
-    this.applyTheme(this.currentTheme);
-    
     // Vytvořit UI
     this.render();
-    
-    // Přidat event listener
-    const toggleButton = this.container.querySelector('.theme-toggle-button');
-    if (toggleButton) {
-      toggleButton.addEventListener('click', () => {
-        this.toggle();
-      });
-    }
   }
 
   getStoredTheme() {
@@ -68,6 +62,11 @@ export class ThemeToggle {
   }
 
   render() {
+    if (!this.container) {
+      console.error('ThemeToggle: container is null');
+      return;
+    }
+
     const icon = this.currentTheme === 'dark' ? '☀️' : '🌙';
     const text = this.currentTheme === 'dark' ? 'Světlý režim' : 'Tmavý režim';
     
@@ -78,10 +77,16 @@ export class ThemeToggle {
       </button>
     `;
     
-    // Přidat event listener znovu
+    // Přidat event listener
     const toggleButton = this.container.querySelector('.theme-toggle-button');
     if (toggleButton) {
-      toggleButton.addEventListener('click', () => {
+      // Odstranit případné existující listenery
+      const newButton = toggleButton.cloneNode(true);
+      toggleButton.parentNode.replaceChild(newButton, toggleButton);
+      
+      // Přidat nový listener
+      newButton.addEventListener('click', (e) => {
+        e.preventDefault();
         this.toggle();
       });
     }
