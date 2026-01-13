@@ -2,9 +2,10 @@
  * Komponenta pro zobrazení seznamu existujících projektů
  */
 export class ProjectList {
-  constructor(container, onProjectSelect) {
+  constructor(container, onProjectSelect, onFilterChange) {
     this.container = container;
     this.onProjectSelect = onProjectSelect;
+    this.onFilterChange = onFilterChange;
     this.projects = [];
     this.includeOthers = false;
   }
@@ -103,6 +104,10 @@ export class ProjectList {
     if (checkbox) {
       checkbox.addEventListener('change', (e) => {
         this.includeOthers = e.target.checked;
+        // Zavolat callback pro změnu filtru (pro reset email listu)
+        if (this.onFilterChange) {
+          this.onFilterChange();
+        }
         this.loadProjects();
       });
     }

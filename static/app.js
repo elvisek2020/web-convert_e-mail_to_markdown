@@ -73,9 +73,24 @@ class App {
 
     // Project List
     const projectListContainer = document.getElementById('project-list-container');
-    this.projectList = new ProjectList(projectListContainer, (projectName) => {
-      this.handleProjectSelect(projectName);
-    });
+    this.projectList = new ProjectList(
+      projectListContainer,
+      (projectName) => {
+        this.handleProjectSelect(projectName);
+      },
+      () => {
+        // Reset email listu při změně filtru
+        if (this.emailList) {
+          this.emailList.clear();
+        }
+        // Vymazat také input pole
+        const projectInput = document.getElementById('project-name');
+        if (projectInput) {
+          projectInput.value = '';
+          this.state.projectName = '';
+        }
+      }
+    );
 
     // Email List
     const emailListContainer = document.getElementById('email-list-container');
