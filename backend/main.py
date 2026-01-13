@@ -216,17 +216,31 @@ async def convert_email(
         raise HTTPException(status_code=400, detail="Neplatný název projektu")
     
     try:
+        # Zjistit, jestli projekt existuje v INBOX_FOLDER nebo v root
+        output_path = Path(ROOT_FOLDER)
+        inbox_path = output_path / INBOX_FOLDER
+        
+        # Zkontrolovat, jestli projekt existuje v INBOX_FOLDER
+        project_in_inbox = False
+        if inbox_path.exists() and inbox_path.is_dir():
+            potential_path = inbox_path / project_name
+            if potential_path.exists() and potential_path.is_dir():
+                project_in_inbox = True
+                print(f"[DEBUG] Project {project_name} found in {INBOX_FOLDER}, will save there")
+        
         # Uložit dočasně soubor
         temp_path = await email_processor.save_temp_file(file)
         
         # Zpracovat email
         email_data = await email_processor.parse_email(temp_path)
         
-        # Konvertovat a uložit
+        # Konvertovat a uložit - předat informaci, jestli ukládat do INBOX_FOLDER
         result = await email_processor.convert_and_save(
             temp_path,
             email_data,
-            project_name
+            project_name,
+            project_in_inbox=project_in_inbox,
+            inbox_folder=INBOX_FOLDER
         )
         
         return result

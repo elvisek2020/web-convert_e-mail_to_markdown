@@ -132,14 +132,24 @@ class EmailProcessor:
         self,
         temp_eml_path: Path,
         email_data: EmailMetadata,
-        project_name: str
+        project_name: str,
+        project_in_inbox: bool = False,
+        inbox_folder: str = None
     ) -> Dict[str, Any]:
         """
         Konvertuje email na markdown a uloží do projektu.
         Vrací dict s výsledkem nebo vyhodí výjimku pokud soubor existuje.
+        
+        Args:
+            project_in_inbox: Pokud True, ukládat do inbox_folder/project_name místo root/project_name
+            inbox_folder: Název inbox adresáře (např. "_from_email")
         """
         # Vytvořit cestu k projektu
-        project_path = self.root_folder / project_name
+        if project_in_inbox and inbox_folder:
+            project_path = self.root_folder / inbox_folder / project_name
+        else:
+            project_path = self.root_folder / project_name
+        
         attachments_path = project_path / "attachments"
         
         project_path.mkdir(parents=True, exist_ok=True)
