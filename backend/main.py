@@ -98,9 +98,27 @@ async def get_projects(include_others: bool = False):
 async def get_project_emails(project_name: str):
     """Vrátí seznam emailů (markdown souborů) v projektu"""
     try:
-        project_path = Path(ROOT_FOLDER) / project_name
+        output_path = Path(ROOT_FOLDER)
+        from_email_path = output_path / "_from_email"
         
-        if not project_path.exists() or not project_path.is_dir():
+        # Zkusit najít projekt - nejprve v _from_email, pak v root
+        project_path = None
+        
+        # Zkusit v _from_email adresáři
+        if from_email_path.exists() and from_email_path.is_dir():
+            potential_path = from_email_path / project_name
+            if potential_path.exists() and potential_path.is_dir():
+                project_path = potential_path
+                print(f"[DEBUG] Found project in _from_email: {project_path}")
+        
+        # Pokud nebyl nalezen v _from_email, zkusit v root
+        if project_path is None:
+            potential_path = output_path / project_name
+            if potential_path.exists() and potential_path.is_dir():
+                project_path = potential_path
+                print(f"[DEBUG] Found project in root: {project_path}")
+        
+        if project_path is None:
             raise HTTPException(status_code=404, detail=f"Projekt {project_name} neexistuje")
         
         emails = []
