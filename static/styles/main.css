@@ -234,9 +234,17 @@ code {
   background: var(--bg-secondary);
   border-top: 2px solid var(--border-color);
   padding: 1rem 2rem;
-  text-align: center;
   margin-top: auto;
   transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 1rem;
 }
 
 .app-footer .version {
@@ -245,3 +253,9 @@ code {
   transition: color 0.3s ease;
 }
 
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

@@ -48,15 +48,12 @@ export class ThemeToggle {
 
   updateButton() {
     const icon = this.container.querySelector('.theme-icon');
-    const text = this.container.querySelector('.theme-toggle-text');
     
-    if (icon && text) {
+    if (icon) {
       if (this.currentTheme === 'dark') {
         icon.textContent = '☀️';
-        text.textContent = 'Světlý režim';
       } else {
         icon.textContent = '🌙';
-        text.textContent = 'Tmavý režim';
       }
     }
   }
@@ -68,12 +65,10 @@ export class ThemeToggle {
     }
 
     const icon = this.currentTheme === 'dark' ? '☀️' : '🌙';
-    const text = this.currentTheme === 'dark' ? 'Světlý režim' : 'Tmavý režim';
     
     this.container.innerHTML = `
       <button class="theme-toggle-button" type="button" aria-label="Přepnout režim">
         <span class="theme-icon">${icon}</span>
-        <span class="theme-toggle-text">${text}</span>
       </button>
     `;
     
