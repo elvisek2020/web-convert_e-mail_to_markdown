@@ -96,8 +96,8 @@ code {
 .theme-toggle-button {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 0.4rem 0.6rem;
+  gap: 0.5rem;
+  
   
   background: var(--bg-tertiary);
   border: 2px solid var(--border-color);
@@ -167,8 +167,8 @@ code {
 .project-name-input {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 0.4rem 0.6rem;
+  gap: 0.5rem;
+  
 }
 
 .project-name-input.box {
@@ -241,7 +241,7 @@ code {
 
 .footer-content {
   display: flex;
-  justify-content: center;
+  gap: 0.5rem;
   align-items: center;
   max-width: 1200px;
   margin: 0 auto;
