@@ -13,6 +13,7 @@ app = FastAPI(title="Convert e-mail to Markdown")
 
 # Initialize service
 ROOT_FOLDER = os.getenv("ROOT_FOLDER", "/app/output")
+INBOX_FOLDER = os.getenv("INBOX_FOLDER", "_from_email")
 email_processor = EmailProcessor(ROOT_FOLDER)
 
 # Mount static files
@@ -41,35 +42,36 @@ async def get_version():
 async def get_projects(include_others: bool = False):
     """
     Vrátí seznam existujících projektů (složek).
-    Pokud include_others=False, zobrazí jen složky z adresáře _from_email.
-    Pokud include_others=True, zobrazí všechny složky kromě _from_email.
+    Pokud include_others=False, zobrazí jen složky z adresáře INBOX_FOLDER.
+    Pokud include_others=True, zobrazí všechny složky kromě INBOX_FOLDER.
     """
     try:
         output_path = Path(ROOT_FOLDER)
-        from_email_path = output_path / "_from_email"
+        inbox_path = output_path / INBOX_FOLDER
         
         # Debug: logovat cestu
         print(f"[DEBUG] ROOT_FOLDER: {ROOT_FOLDER}")
+        print(f"[DEBUG] INBOX_FOLDER: {INBOX_FOLDER}")
         print(f"[DEBUG] output_path exists: {output_path.exists()}")
-        print(f"[DEBUG] from_email_path exists: {from_email_path.exists()}")
+        print(f"[DEBUG] inbox_path exists: {inbox_path.exists()}")
         print(f"[DEBUG] include_others: {include_others}")
         
         projects = []
         
         if not include_others:
-            # Zobrazit jen složky z _from_email adresáře
-            if from_email_path.exists() and from_email_path.is_dir():
-                all_items = list(from_email_path.iterdir())
-                print(f"[DEBUG] All items in {from_email_path}: {[item.name for item in all_items]}")
+            # Zobrazit jen složky z INBOX_FOLDER adresáře
+            if inbox_path.exists() and inbox_path.is_dir():
+                all_items = list(inbox_path.iterdir())
+                print(f"[DEBUG] All items in {inbox_path}: {[item.name for item in all_items]}")
                 
                 for item in all_items:
                     if item.is_dir() and not item.name.startswith('.'):
                         projects.append(item.name)
-                        print(f"[DEBUG] Found project in _from_email: {item.name}")
+                        print(f"[DEBUG] Found project in {INBOX_FOLDER}: {item.name}")
             else:
-                print(f"[DEBUG] _from_email directory does not exist")
+                print(f"[DEBUG] {INBOX_FOLDER} directory does not exist")
         else:
-            # Zobrazit všechny složky kromě _from_email
+            # Zobrazit všechny složky kromě INBOX_FOLDER
             if not output_path.exists():
                 print(f"[DEBUG] Path {output_path} does not exist")
                 return {"projects": []}
@@ -78,9 +80,9 @@ async def get_projects(include_others: bool = False):
             print(f"[DEBUG] All items in {output_path}: {[item.name for item in all_items]}")
             
             for item in all_items:
-                if item.is_dir() and not item.name.startswith('.') and item.name != "_from_email":
+                if item.is_dir() and not item.name.startswith('.') and item.name != INBOX_FOLDER:
                     projects.append(item.name)
-                    print(f"[DEBUG] Found project (excluding _from_email): {item.name}")
+                    print(f"[DEBUG] Found project (excluding {INBOX_FOLDER}): {item.name}")
         
         # Seřadit abecedně
         projects.sort()
@@ -99,19 +101,19 @@ async def get_project_emails(project_name: str):
     """Vrátí seznam emailů (markdown souborů) v projektu"""
     try:
         output_path = Path(ROOT_FOLDER)
-        from_email_path = output_path / "_from_email"
+        inbox_path = output_path / INBOX_FOLDER
         
-        # Zkusit najít projekt - nejprve v _from_email, pak v root
+        # Zkusit najít projekt - nejprve v INBOX_FOLDER, pak v root
         project_path = None
         
-        # Zkusit v _from_email adresáři
-        if from_email_path.exists() and from_email_path.is_dir():
-            potential_path = from_email_path / project_name
+        # Zkusit v INBOX_FOLDER adresáři
+        if inbox_path.exists() and inbox_path.is_dir():
+            potential_path = inbox_path / project_name
             if potential_path.exists() and potential_path.is_dir():
                 project_path = potential_path
-                print(f"[DEBUG] Found project in _from_email: {project_path}")
+                print(f"[DEBUG] Found project in {INBOX_FOLDER}: {project_path}")
         
-        # Pokud nebyl nalezen v _from_email, zkusit v root
+        # Pokud nebyl nalezen v INBOX_FOLDER, zkusit v root
         if project_path is None:
             potential_path = output_path / project_name
             if potential_path.exists() and potential_path.is_dir():

@@ -11,5 +11,6 @@ services:
       - ./output:/app/output
     environment:
       - ROOT_FOLDER=/app/output
+      - INBOX_FOLDER=_from_email
     restart: unless-stopped
 
