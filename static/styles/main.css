@@ -166,9 +166,9 @@ code {
 
 .project-name-input {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
 }
 
 .project-name-input.box {
@@ -179,6 +179,8 @@ code {
   font-weight: 600;
   color: var(--text-primary);
   transition: color 0.3s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .project-input {
@@ -186,7 +188,7 @@ code {
   border: 2px solid var(--border-color);
   border-radius: 4px;
   font-size: 1rem;
-  width: 100%;
+  flex: 1;
   box-sizing: border-box;
   background: var(--bg-secondary);
   color: var(--text-primary);
