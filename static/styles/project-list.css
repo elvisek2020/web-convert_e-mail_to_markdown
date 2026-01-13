@@ -22,9 +22,27 @@
 }
 
 .project-list-items {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 0.75rem;
+}
+
+@media (max-width: 1200px) {
+  .project-list-items {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .project-list-items {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .project-list-items {
+    grid-template-columns: 1fr;
+  }
 }
 
 .project-item {
@@ -37,6 +55,7 @@
   font-size: 0.95rem;
   color: var(--text-primary);
   user-select: none;
+  text-align: center;
 }
 
 .project-item:hover {

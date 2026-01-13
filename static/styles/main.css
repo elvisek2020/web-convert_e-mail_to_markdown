@@ -242,8 +242,8 @@ code {
 }
 
 .footer-content {
-  display: flex;
-  gap: 0.5rem;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   max-width: 1200px;
   margin: 0 auto;
@@ -251,9 +251,14 @@ code {
 }
 
 .app-footer .version {
+  grid-column: 2;
+  justify-self: center;
   color: var(--text-tertiary);
   font-size: 0.9rem;
   transition: color 0.3s ease;
 }
 
+#theme-toggle-container {
+  grid-column: 3;
+  justify-self: end;
 }
