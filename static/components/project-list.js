@@ -32,12 +32,39 @@ export class ProjectList {
       return;
     }
 
+    // Vytvořit header s checkboxem
+    const headerHtml = `
+      <div class="project-list-header">
+        <h3 class="project-list-title">Seznam projektů</h3>
+        <label class="project-list-checkbox-label">
+          <input 
+            type="checkbox" 
+            class="project-list-checkbox" 
+            ${this.includeOthers ? 'checked' : ''}
+          />
+          <span>Zobrazit ostatní</span>
+        </label>
+      </div>
+    `;
+
     if (this.projects.length === 0) {
       this.container.innerHTML = `
-        <div class="project-list-empty">
-          <p>Zatím nejsou žádné projekty. Vytvořte první projekt zadáním názvu výše.</p>
+        <div class="project-list-content">
+          ${headerHtml}
+          <div class="project-list-empty">
+            <p>Zatím nejsou žádné projekty. Vytvořte první projekt zadáním názvu výše.</p>
+          </div>
         </div>
       `;
+      
+      // Přidat event listener na checkbox i když není žádný projekt
+      const checkbox = this.container.querySelector('.project-list-checkbox');
+      if (checkbox) {
+        checkbox.addEventListener('change', (e) => {
+          this.includeOthers = e.target.checked;
+          this.loadProjects();
+        });
+      }
       return;
     }
 
@@ -53,17 +80,7 @@ export class ProjectList {
 
     this.container.innerHTML = `
       <div class="project-list-content">
-        <div class="project-list-header">
-          <h3 class="project-list-title">Seznam projektů</h3>
-          <label class="project-list-checkbox-label">
-            <input 
-              type="checkbox" 
-              class="project-list-checkbox" 
-              ${this.includeOthers ? 'checked' : ''}
-            />
-            <span>Zobrazit ostatní</span>
-          </label>
-        </div>
+        ${headerHtml}
         <div class="project-list-items">
           ${projectsHtml}
         </div>
