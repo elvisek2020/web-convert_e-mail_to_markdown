@@ -40,39 +40,47 @@ async def get_version():
 @app.get("/api/projects")
 async def get_projects(include_others: bool = False):
     """
-    Vrátí seznam existujících projektů (složek v output/).
-    Pokud include_others=True, zobrazí všechny adresáře v root (první úroveň).
-    Pokud include_others=False, zobrazí jen projekty (bez _from_email a podobných systémových adresářů).
+    Vrátí seznam existujících projektů (složek).
+    Pokud include_others=False, zobrazí jen složky z adresáře _from_email.
+    Pokud include_others=True, zobrazí všechny složky kromě _from_email.
     """
     try:
         output_path = Path(ROOT_FOLDER)
+        from_email_path = output_path / "_from_email"
         
         # Debug: logovat cestu
         print(f"[DEBUG] ROOT_FOLDER: {ROOT_FOLDER}")
         print(f"[DEBUG] output_path exists: {output_path.exists()}")
-        print(f"[DEBUG] output_path absolute: {output_path.absolute()}")
+        print(f"[DEBUG] from_email_path exists: {from_email_path.exists()}")
         print(f"[DEBUG] include_others: {include_others}")
         
-        if not output_path.exists():
-            print(f"[DEBUG] Path {output_path} does not exist")
-            return {"projects": []}
-        
-        # Získat všechny složky v output/ (první úroveň)
-        all_items = list(output_path.iterdir())
-        print(f"[DEBUG] All items in {output_path}: {[item.name for item in all_items]}")
-        
         projects = []
-        for item in all_items:
-            if item.is_dir() and not item.name.startswith('.'):
-                # Pokud include_others je False, zobrazit jen projekty (bez _from_email a podobných)
-                if not include_others:
-                    # Zobrazit jen adresáře, které nejsou systémové (nezačínají _)
-                    if not item.name.startswith('_'):
+        
+        if not include_others:
+            # Zobrazit jen složky z _from_email adresáře
+            if from_email_path.exists() and from_email_path.is_dir():
+                all_items = list(from_email_path.iterdir())
+                print(f"[DEBUG] All items in {from_email_path}: {[item.name for item in all_items]}")
+                
+                for item in all_items:
+                    if item.is_dir() and not item.name.startswith('.'):
                         projects.append(item.name)
-                else:
-                    # Zobrazit všechny adresáře včetně _from_email a dalších
+                        print(f"[DEBUG] Found project in _from_email: {item.name}")
+            else:
+                print(f"[DEBUG] _from_email directory does not exist")
+        else:
+            # Zobrazit všechny složky kromě _from_email
+            if not output_path.exists():
+                print(f"[DEBUG] Path {output_path} does not exist")
+                return {"projects": []}
+            
+            all_items = list(output_path.iterdir())
+            print(f"[DEBUG] All items in {output_path}: {[item.name for item in all_items]}")
+            
+            for item in all_items:
+                if item.is_dir() and not item.name.startswith('.') and item.name != "_from_email":
                     projects.append(item.name)
-                print(f"[DEBUG] Found project: {item.name}")
+                    print(f"[DEBUG] Found project (excluding _from_email): {item.name}")
         
         # Seřadit abecedně
         projects.sort()
