@@ -3,6 +3,7 @@ import { ProcessingStatus } from './components/processing-status.js';
 import { MessageBanner } from './components/message-banner.js';
 import { ProjectList } from './components/project-list.js';
 import { EmailList } from './components/email-list.js';
+import { ThemeToggle } from './components/theme-toggle.js';
 
 /**
  * Hlavní aplikace
@@ -20,6 +21,7 @@ class App {
     this.messageBanner = null;
     this.projectList = null;
     this.emailList = null;
+    this.themeToggle = null;
 
     this.init();
   }
@@ -78,6 +80,10 @@ class App {
     // Email List
     const emailListContainer = document.getElementById('email-list-container');
     this.emailList = new EmailList(emailListContainer);
+
+    // Theme Toggle
+    const themeToggleContainer = document.getElementById('theme-toggle-container');
+    this.themeToggle = new ThemeToggle(themeToggleContainer);
   }
 
   setupEventListeners() {

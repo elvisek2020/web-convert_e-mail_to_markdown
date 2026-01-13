@@ -1,16 +1,18 @@
 .project-list {
-  background: #fff;
-  border: 2px solid #e0e0e0;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
   border-radius: 4px;
   padding: 2rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px var(--shadow);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .project-list-title {
   font-size: 1.2rem;
   margin-bottom: 1rem;
-  color: #333;
+  color: var(--text-primary);
   font-weight: 600;
+  transition: color 0.3s ease;
 }
 
 .project-list-content {
@@ -27,33 +29,34 @@
 
 .project-item {
   padding: 0.75rem 1.25rem;
-  background: #f8f9fa;
-  border: 2px solid #e0e0e0;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-color);
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 0.95rem;
-  color: #333;
+  color: var(--text-primary);
   user-select: none;
 }
 
 .project-item:hover {
-  background: #e9ecef;
-  border-color: #4a90e2;
-  color: #4a90e2;
+  background: var(--bg-secondary);
+  border-color: var(--link-color);
+  color: var(--link-color);
   transform: translateY(-2px);
-  box-shadow: 0 2px 4px rgba(74, 144, 226, 0.2);
+  box-shadow: 0 2px 4px var(--shadow-hover);
 }
 
 .project-item:active {
   transform: translateY(0);
-  box-shadow: 0 1px 2px rgba(74, 144, 226, 0.2);
+  box-shadow: 0 1px 2px var(--shadow-hover);
 }
 
 .project-list-empty {
   padding: 1rem;
   text-align: center;
-  color: #999;
+  color: var(--text-tertiary);
   font-style: italic;
+  transition: color 0.3s ease;
 }
 

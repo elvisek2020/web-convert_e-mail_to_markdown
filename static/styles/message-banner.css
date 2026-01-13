@@ -3,18 +3,19 @@
   padding: 1rem;
   text-align: center;
   margin-top: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px var(--shadow);
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .message-banner.success {
-  background: #efe;
-  border: 2px solid #cfc;
-  color: #3c3;
+  background: var(--success-bg);
+  border: 2px solid var(--success-border);
+  color: var(--success-text);
 }
 
 .message-banner.error {
-  background: #fee;
-  border: 2px solid #fcc;
-  color: #c33;
+  background: var(--error-bg);
+  border: 2px solid var(--error-border);
+  color: var(--error-text);
 }
 

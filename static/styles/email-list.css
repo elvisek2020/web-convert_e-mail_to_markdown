@@ -5,8 +5,9 @@
 .email-list-title {
   font-size: 1.2rem;
   margin-bottom: 1rem;
-  color: #333;
+  color: var(--text-primary);
   font-weight: 600;
+  transition: color 0.3s ease;
 }
 
 .email-list-content {
@@ -22,10 +23,11 @@
 .email-table-header {
   padding: 0.75rem;
   text-align: left;
-  background-color: #f8f9fa;
-  border-bottom: 2px solid #e0e0e0;
+  background-color: var(--bg-tertiary);
+  border-bottom: 2px solid var(--border-color);
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .email-table-header:first-child {
@@ -41,12 +43,12 @@
 }
 
 .email-row {
-  border-bottom: 1px solid #e0e0e0;
-  transition: background-color 0.2s ease;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s ease, border-color 0.3s ease;
 }
 
 .email-row:hover {
-  background-color: #f8f9fa;
+  background-color: var(--bg-tertiary);
 }
 
 .email-row td {
@@ -55,19 +57,22 @@
 }
 
 .email-date {
-  color: #666;
+  color: var(--text-secondary);
   font-size: 0.9rem;
   white-space: nowrap;
+  transition: color 0.3s ease;
 }
 
 .email-from {
-  color: #333;
+  color: var(--text-primary);
   word-break: break-word;
+  transition: color 0.3s ease;
 }
 
 .email-subject {
-  color: #333;
+  color: var(--text-primary);
   word-break: break-word;
+  transition: color 0.3s ease;
 }
 
 #email-list-container {

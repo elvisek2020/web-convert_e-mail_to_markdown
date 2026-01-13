@@ -4,14 +4,55 @@
   box-sizing: border-box;
 }
 
+/* CSS proměnné pro světlý režim */
+:root {
+  --bg-primary: #f5f5f5;
+  --bg-secondary: #fff;
+  --bg-tertiary: #f8f9fa;
+  --text-primary: #333;
+  --text-secondary: #666;
+  --text-tertiary: #999;
+  --border-color: #e0e0e0;
+  --shadow: rgba(0, 0, 0, 0.05);
+  --shadow-hover: rgba(0, 0, 0, 0.1);
+  --link-color: #4a90e2;
+  --success-bg: #efe;
+  --success-border: #cfc;
+  --success-text: #3c3;
+  --error-bg: #fee;
+  --error-border: #fcc;
+  --error-text: #c33;
+}
+
+/* CSS proměnné pro tmavý režim */
+[data-theme="dark"] {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-tertiary: #3a3a3a;
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --text-tertiary: #808080;
+  --border-color: #404040;
+  --shadow: rgba(0, 0, 0, 0.3);
+  --shadow-hover: rgba(0, 0, 0, 0.5);
+  --link-color: #6ba3e8;
+  --success-bg: #1e3a1e;
+  --success-border: #2d5a2d;
+  --success-text: #4ade4a;
+  --error-bg: #3a1e1e;
+  --error-border: #5a2d2d;
+  --error-text: #de4a4a;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f5f5;
-  color: #333;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 code {
@@ -26,28 +67,83 @@ code {
 }
 
 .app-header {
-  background: #fff;
-  border-bottom: 2px solid #e0e0e0;
+  background: var(--bg-secondary);
+  border-bottom: 2px solid var(--border-color);
   padding: 2rem;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px var(--shadow-hover);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .app-header h1 {
+    font-size: 2rem;
+  }
 }
 
 .app-header h1 {
   font-size: 2.5rem;
-  margin-bottom: 0.5rem;
-  color: #333;
+  margin-bottom: 0;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }
 
 .app-header h1 .header-link {
-  color: #333;
+  color: var(--text-primary);
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .app-header h1 .header-link:hover {
-  color: #4a90e2;
+  color: var(--link-color);
   text-decoration: underline;
+}
+
+.theme-toggle-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px var(--shadow);
+}
+
+.theme-toggle-button:hover {
+  background: var(--bg-secondary);
+  border-color: var(--link-color);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px var(--shadow-hover);
+}
+
+.theme-toggle-button:active {
+  transform: translateY(0);
+}
+
+.theme-icon {
+  font-size: 1.2rem;
+}
+
+.theme-toggle-text {
+  font-weight: 500;
 }
 
 
@@ -61,21 +157,24 @@ code {
 
 /* Box-style komponenty */
 .box {
-  background: #fff;
-  border: 2px solid #e0e0e0;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
   border-radius: 4px;
   padding: 2rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px var(--shadow);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .box-title {
   font-size: 1.5rem;
   margin-bottom: 1rem;
-  color: #333;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }
 
 .box-content {
-  color: #666;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
 }
 
 .input-section {
@@ -96,26 +195,34 @@ code {
 
 .project-name-input label {
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }
 
 .project-input {
   padding: 0.75rem;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--border-color);
   border-radius: 4px;
   font-size: 1rem;
   width: 100%;
   box-sizing: border-box;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .project-input:focus {
   outline: none;
-  border-color: #4a90e2;
+  border-color: var(--link-color);
 }
 
 .project-input:disabled {
-  background-color: #f5f5f5;
+  background-color: var(--bg-tertiary);
   cursor: not-allowed;
+}
+
+.project-input::placeholder {
+  color: var(--text-tertiary);
 }
 
 .processing-overlay {
@@ -143,15 +250,17 @@ code {
 }
 
 .app-footer {
-  background: #fff;
-  border-top: 2px solid #e0e0e0;
+  background: var(--bg-secondary);
+  border-top: 2px solid var(--border-color);
   padding: 1rem 2rem;
   text-align: center;
   margin-top: auto;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .app-footer .version {
-  color: #999;
+  color: var(--text-tertiary);
   font-size: 0.9rem;
+  transition: color 0.3s ease;
 }
 
