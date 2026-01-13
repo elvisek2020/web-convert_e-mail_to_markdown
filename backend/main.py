@@ -38,8 +38,12 @@ async def get_version():
 
 
 @app.get("/api/projects")
-async def get_projects():
-    """Vrátí seznam existujících projektů (složek v output/)"""
+async def get_projects(include_others: bool = False):
+    """
+    Vrátí seznam existujících projektů (složek v output/).
+    Pokud include_others=True, zobrazí všechny adresáře v root (první úroveň).
+    Pokud include_others=False, zobrazí jen projekty (bez _from_email a podobných systémových adresářů).
+    """
     try:
         output_path = Path(ROOT_FOLDER)
         
@@ -47,19 +51,27 @@ async def get_projects():
         print(f"[DEBUG] ROOT_FOLDER: {ROOT_FOLDER}")
         print(f"[DEBUG] output_path exists: {output_path.exists()}")
         print(f"[DEBUG] output_path absolute: {output_path.absolute()}")
+        print(f"[DEBUG] include_others: {include_others}")
         
         if not output_path.exists():
             print(f"[DEBUG] Path {output_path} does not exist")
             return {"projects": []}
         
-        # Získat všechny složky v output/ (projekty)
+        # Získat všechny složky v output/ (první úroveň)
         all_items = list(output_path.iterdir())
         print(f"[DEBUG] All items in {output_path}: {[item.name for item in all_items]}")
         
         projects = []
         for item in all_items:
             if item.is_dir() and not item.name.startswith('.'):
-                projects.append(item.name)
+                # Pokud include_others je False, zobrazit jen projekty (bez _from_email a podobných)
+                if not include_others:
+                    # Zobrazit jen adresáře, které nejsou systémové (nezačínají _)
+                    if not item.name.startswith('_'):
+                        projects.append(item.name)
+                else:
+                    # Zobrazit všechny adresáře včetně _from_email a dalších
+                    projects.append(item.name)
                 print(f"[DEBUG] Found project: {item.name}")
         
         # Seřadit abecedně

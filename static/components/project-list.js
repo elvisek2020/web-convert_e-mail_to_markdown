@@ -6,11 +6,13 @@ export class ProjectList {
     this.container = container;
     this.onProjectSelect = onProjectSelect;
     this.projects = [];
+    this.includeOthers = false;
   }
 
   async loadProjects() {
     try {
-      const response = await fetch('/api/projects');
+      const url = `/api/projects?include_others=${this.includeOthers}`;
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error('Nepodařilo se načíst projekty');
       }
@@ -51,7 +53,17 @@ export class ProjectList {
 
     this.container.innerHTML = `
       <div class="project-list-content">
-        <h3 class="project-list-title">Seznam projektů</h3>
+        <div class="project-list-header">
+          <h3 class="project-list-title">Seznam projektů</h3>
+          <label class="project-list-checkbox-label">
+            <input 
+              type="checkbox" 
+              class="project-list-checkbox" 
+              ${this.includeOthers ? 'checked' : ''}
+            />
+            <span>Zobrazit ostatní</span>
+          </label>
+        </div>
         <div class="project-list-items">
           ${projectsHtml}
         </div>
@@ -68,6 +80,15 @@ export class ProjectList {
         }
       });
     });
+
+    // Přidat event listener na checkbox
+    const checkbox = this.container.querySelector('.project-list-checkbox');
+    if (checkbox) {
+      checkbox.addEventListener('change', (e) => {
+        this.includeOthers = e.target.checked;
+        this.loadProjects();
+      });
+    }
   }
 
   escapeHtml(text) {
