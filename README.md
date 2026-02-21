@@ -2,44 +2,39 @@
 
 Systém pro konverzi emailů z Outlooku (.eml) do Markdown formátu s přílohami a organizací podle projektů.
 
-## 📋 Popis
+## Popis
 
-Aplikace umožňuje jednoduchou konverzi emailů z formátu .eml (Outlook) do strukturovaného Markdown formátu s YAML front-matter. Emaily jsou automaticky organizovány do složek podle názvu projektu, přílohy jsou ukládány do samostatné složky. Aplikace kontroluje duplicity a zabraňuje přepsání existujících souborů.
+Aplikace umožňuje konverzi emailů z formátu .eml (Outlook) do strukturovaného Markdown formátu s YAML front-matter. Emaily jsou automaticky organizovány do složek podle názvu projektu, přílohy jsou ukládány do samostatné složky. Aplikace kontroluje duplicity a zabraňuje přepsání existujících souborů.
 
-Aplikace je určena pro uživatele, kteří potřebují systematicky archivovat a organizovat emaily v textovém formátu, vhodném pro verzování a další zpracování.
+## Funkce
 
-## ✨ Funkce
+- **Konverze emailů** z .eml formátu do Markdown s YAML front-matter
+- **Multi-file upload** -- nahrání více .eml souborů najednou s progress indikátorem
+- **Správa příloh** včetně inline obrázků -- přílohy se ukládají do samostatné složky
+- **Organizace podle projektů** -- emaily se ukládají do složek podle názvu projektu
+- **Seznam existujících projektů** s filtrováním (inbox / ostatní)
+- **Seznam emailů** v projektu s datem, odesílatelem a předmětem
+- **Normalizace názvu projektu** -- automatické odstranění diakritiky a speciálních znaků
+- **Kontrola duplicit** -- zabraňuje přepsání existujících souborů
+- **Drag & drop upload** -- jednoduché nahrávání souborů přes webové rozhraní
+- **Dark/light mode** s persistencí v localStorage
 
-- ✅ **Konverze emailů** z .eml formátu do Markdown s YAML front-matter
-- ✅ **Správa příloh** včetně inline obrázků - přílohy se ukládají do samostatné složky
-- ✅ **Organizace podle projektů** - emaily se ukládají do složek podle názvu projektu
-- ✅ **Seznam existujících projektů** - zobrazení všech existujících projektů s možností rychlého výběru
-- ✅ **Normalizace názvu projektu** - automatické odstranění diakritiky a speciálních znaků, ponechání jen alfanumerických znaků a podtržítka
-- ✅ **Kontrola duplicit** - zabraňuje přepsání existujících souborů se stejným datum_čas
-- ✅ **Drag & drop upload** - jednoduché nahrávání souborů přes webové rozhraní
-
-## 📖 Použití
-
-Aplikace poskytuje jednoduché webové rozhraní pro konverzi emailů. Uživatel zadá název projektu a nahraje .eml soubor, který se automaticky zpracuje a uloží do strukturované složky.
+## Použití
 
 ### Základní workflow
 
-1. **Zadání názvu projektu**: Uživatel zadá název projektu do textového pole (diakritika a speciální znaky budou automaticky odstraněny) nebo klikne na existující projekt ze seznamu
-2. **Nahrání .eml souboru**: Přetáhne .eml soubor do aplikace nebo klikne na upload oblast
-3. **Automatické zpracování**: Email se automaticky konvertuje a uloží do složky `output/{normalizovany_nazev_projektu}/`
-4. **Pokračování**: Název projektu zůstane zachován, uživatel může nahrát další emaily do stejného projektu
+1. **Zadání názvu projektu**: Zadejte název projektu do textového pole nebo klikněte na existující projekt ze seznamu
+2. **Nahrání .eml souborů**: Přetáhněte jeden nebo více .eml souborů do aplikace, nebo klikněte pro výběr
+3. **Automatické zpracování**: Emaily se sekvenčně zpracují s progress indikátorem (2/5), duplikáty se přeskočí
+4. **Souhrnná zpráva**: Po dokončení se zobrazí souhrn (počet uložených, přeskočených, chybných)
 
-## 🚀 Deployment
+## Deployment
 
 ### Předpoklady
 
 - Docker a Docker Compose
 
-### Docker Compose
-
-Aplikace je připravena pro spuštění pomocí Docker Compose. Soubor `docker-compose.yml` obsahuje veškerou potřebnou konfiguraci.
-
-#### Spuštění
+### Spuštění
 
 ```bash
 docker compose up -d --build
@@ -47,9 +42,7 @@ docker compose up -d --build
 
 Aplikace bude dostupná na `http://localhost:8000`
 
-#### Konfigurace
-
-Aplikace je konfigurována pomocí `docker-compose.yml`:
+### Konfigurace
 
 ```yaml
 services:
@@ -59,23 +52,39 @@ services:
       dockerfile: Dockerfile
     container_name: convert-mail-to-markdown
     hostname: convert-mail-to-markdown
-    restart: unless-stopped
     ports:
       - "8000:8000"
     volumes:
       - ./output:/app/output
     environment:
       - ROOT_FOLDER=/app/output
+      - INBOX_FOLDER=_from_email
+      - LOG_LEVEL=INFO
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
 ```
 
-#### Update aplikace
+### Proměnné prostředí
+
+| Proměnná | Výchozí | Popis |
+|----------|---------|-------|
+| `ROOT_FOLDER` | `/app/output` | Kořenová složka pro výstupní data |
+| `INBOX_FOLDER` | `_from_email` | Podsložka pro nové projekty |
+| `LOG_LEVEL` | `INFO` | Úroveň logování (`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`) |
+
+### Update aplikace
 
 ```bash
 docker compose pull
 docker compose up -d
 ```
 
-#### Rollback na konkrétní verzi
+### Rollback na konkrétní verzi
 
 V `docker-compose.yml` změňte image tag:
 
@@ -87,152 +96,110 @@ services:
 
 ### GitHub a CI/CD
 
-#### Inicializace repozitáře
+Po push do `main` branch se automaticky spustí GitHub Actions workflow:
 
-1. **Vytvoření GitHub repozitáře**:
-
-   ```bash
-   # Repozitář: git@github.com:elvisek2020/web-convert_e-mail_to_markdown.git
-   ```
-2. **Inicializace lokálního repozitáře**:
-
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git branch -M main
-   git remote add origin git@github.com:elvisek2020/web-convert_e-mail_to_markdown.git
-   git push -u origin main
-   ```
-3. **Vytvoření GitHub Actions workflow**:
-
-   Vytvořte soubor `.github/workflows/docker.yml` s workflow pro automatické buildy Docker image. Příklad workflow najdete v dokumentaci GitHub Actions nebo v existujících projektech.
-4. **Nastavení viditelnosti image**:
-
-   - Po prvním buildu jděte na GitHub → Packages
-   - Najděte vytvořený package `web-convert_e-mail_to_Markdown`
-   - V Settings → Change visibility nastavte na **Public**
-
-#### Commitování změn a automatické buildy
-
-1. **Proveďte změny v kódu**
-2. **Commit a push**:
-
-   ```bash
-   git add .
-   git commit -m "Popis změn"
-   git push origin main
-   ```
-3. **Automatický build**:
-
-   - Po push do `main` branch se automaticky spustí GitHub Actions workflow
-   - Vytvoří se Docker image pro `linux/amd64` a `linux/arm64`
-   - Image se nahraje do GHCR
-   - Taguje se jako `latest` a `sha-<commit-sha>`
-4. **Sledování buildu**:
-
-   - GitHub → Actions → zobrazí se běžící workflow
-   - Po dokončení je image dostupná na `ghcr.io/elvisek2020/web-convert_e-mail_to_markdown:latest`
-
-#### GitHub Container Registry (GHCR)
-
-Aplikace je dostupná jako Docker image z GitHub Container Registry:
-
-- **Latest**: `ghcr.io/elvisek2020/web-convert_e-mail_to_markdown:latest`
-- **Konkrétní commit**: `ghcr.io/elvisek2020/web-convert_e-mail_to_markdown:sha-<commit-sha>`
-
-Image je **veřejný** (public), takže není potřeba autentizace pro pull.
+- Vytvoří Docker image pro `linux/amd64` a `linux/arm64`
+- Image se nahraje do GHCR jako `ghcr.io/elvisek2020/web-convert_e-mail_to_markdown`
+- Taguje se jako `latest` a `sha-<commit-sha>`
 
 ---
 
-## 🔧 Technická dokumentace
+## Technická dokumentace
 
-### 🏗️ Architektura
+### Architektura
 
 Jednotná aplikace kombinující frontend a backend v jednom Docker kontejneru:
 
-- **Backend (Python FastAPI)**: Zpracování .eml souborů, konverze do Markdown formátu, ukládání do strukturovaných složek
-- **Frontend (Vanilla JavaScript ES6+)**: Drag & drop upload, zobrazení průběhu zpracování, zadání názvu projektu
-- **Statické soubory**: Vanilla JS frontend je servován FastAPI jako statické soubory
+- **Backend (Python FastAPI)**: Zpracování .eml souborů, konverze do Markdown, ukládání do strukturovaných složek
+- **Frontend (Vanilla JavaScript ES6+)**: Multi-file drag & drop upload, progress indikátor, správa projektů
+- **Statické soubory**: Servovány přímo FastAPI
 
 Hlavní charakteristiky:
 
-- **Jednoduchý Docker build**: Statické soubory se kopírují přímo do Python kontejneru (bez build fáze)
-- **Volume mapping**: Výstupní složka `./output` je mapována do kontejneru pro perzistenci dat
-- **REST API**: FastAPI poskytuje REST endpointy pro konverzi emailů
-- **Kontrola duplicit**: Aplikace kontroluje, zda soubor s daným datum_čas již existuje
+- **Non-blocking I/O**: Blokující operace (parsování emailů, zápis na disk) běží v thread poolu přes `asyncio.to_thread()`
+- **Bezpečnostní middleware**: Security headers (X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy)
+- **Path traversal ochrana**: Všechny uživatelské vstupy pro cesty jsou normalizovány
+- **Sanitizace názvů příloh**: Nebezpečné znaky v názvech souborů jsou odstraněny
+- **Non-root Docker**: Kontejner běží pod neprivilegovaným uživatelem `appuser`
+- **Healthcheck**: Docker i docker-compose monitorují zdraví aplikace
 
 ### Technický stack
 
 **Backend:**
 
-- FastAPI (Python 3.11+)
-- Uvicorn jako ASGI server
+- Python 3.11, FastAPI, Uvicorn (ASGI server)
 - mail-parser pro parsování .eml souborů
 - markdownify pro konverzi HTML na Markdown
 - PyYAML pro YAML front-matter
+- Pydantic pro validaci dat
 - Python logging s konfigurovatelnou úrovní
 
 **Frontend:**
 
-- Vanilla JavaScript (ES6+)
-- ES6 moduly pro komponenty
-- REST API pro komunikaci s backendem
-- HTML5 + CSS3
-- Drag & drop API
+- Vanilla JavaScript (ES6+ moduly)
+- HTML5 Drag & Drop API (multi-file)
+- Fetch API pro komunikaci s backendem
+- CSS3 s CSS proměnnými (dark/light mode)
 
 **Deployment:**
 
-- Docker
-- Docker Compose
-- Jednoduchý single-stage build
+- Docker (single-stage build, non-root user)
+- Docker Compose s healthcheck
+- GitHub Actions CI/CD (multi-arch: amd64 + arm64)
 
-### 📁 Struktura projektu
+### Struktura projektu
 
 ```
 convert-email-to-markdown/
-├── backend/              # Python FastAPI backend
-│   ├── main.py          # Hlavní FastAPI aplikace
-│   ├── models/          # Data modely
-│   │   └── schemas.py   # Pydantic modely
-│   ├── services/        # Business logika
-│   │   └── email_processor.py  # Zpracování emailů
-│   └── requirements.txt # Python závislosti
-├── static/              # Vanilla JS frontend
-│   ├── index.html       # Hlavní HTML stránka
-│   ├── app.js           # Hlavní JavaScript aplikace
-│   ├── components/      # ES6 moduly komponent
-│   │   ├── dropzone.js
-│   │   ├── processing-status.js
-│   │   ├── message-banner.js
-│   │   └── project-list.js
-│   ├── styles/          # CSS soubory
+├── backend/                    # Python FastAPI backend
+│   ├── main.py                # Hlavní FastAPI aplikace + middleware
+│   ├── models/
+│   │   └── schemas.py         # Pydantic modely
+│   ├── services/
+│   │   └── email_processor.py # Zpracování emailů
+│   └── requirements.txt       # Python závislosti
+├── static/                    # Vanilla JS frontend
+│   ├── index.html             # Hlavní HTML stránka
+│   ├── app.js                 # Hlavní JavaScript aplikace
+│   ├── components/            # ES6 moduly komponent
+│   │   ├── dropzone.js        # Drag & drop (multi-file)
+│   │   ├── processing-status.js # Progress indikátor
+│   │   ├── message-banner.js  # Zprávy (úspěch/chyba)
+│   │   ├── project-list.js    # Seznam projektů
+│   │   ├── email-list.js      # Seznam emailů v projektu
+│   │   └── theme-toggle.js    # Dark/light mode
+│   ├── styles/                # CSS soubory
 │   │   ├── main.css
 │   │   ├── dropzone.css
 │   │   ├── processing-status.css
 │   │   ├── message-banner.css
-│   │   └── project-list.css
-│   └── version.json     # Verze aplikace
-├── output/              # Výstupní složka (mapována jako volume)
-├── Dockerfile           # Single-stage build pro jednotnou aplikaci
-├── docker-compose.yml   # Docker Compose konfigurace
-└── README.md            # Tato dokumentace
+│   │   ├── project-list.css
+│   │   └── email-list.css
+│   └── version.json           # Verze aplikace
+├── output/                    # Výstupní složka (Docker volume)
+├── .github/workflows/
+│   └── docker.yml             # CI/CD workflow
+├── Dockerfile                 # Single-stage build, non-root user
+├── docker-compose.yml         # Docker Compose konfigurace
+└── README.md
 ```
 
-### 📁 Struktura výstupu
+### Struktura výstupu
 
 ```
 output/
-  {nazev_projektu}/
-    {datum_cas}_{slug}.md
-    attachments/
-      {prilohy}
+  _from_email/                 # Inbox složka (výchozí pro nové projekty)
+    {nazev_projektu}/
+      {datum_cas}_{slug}.md
+      attachments/
+        {prilohy}
+  {nazev_projektu}/            # Projekty přesunuté z inboxu
+    ...
 ```
 
 **Formát souboru:**
 
-- `{datum_cas}_{slug}.md` - kde datum_cas je z emailu (formát: YYYY-MM-DD_HH-MM-SS)
-- Slug je vytvořen z subject emailu (max 100 znaků, bez diakritiky a speciálních znaků)
+- `{datum_cas}_{slug}.md` -- datum_cas z emailu (formát: YYYY-MM-DD_HH-MM-SS), slug z předmětu (max 100 znaků)
 - Přílohy se ukládají do složky `attachments/` v rámci projektu
 
 **YAML front-matter obsahuje:**
@@ -244,117 +211,89 @@ output/
 - `date`: Datum a čas emailu (ISO formát)
 - `attachments`: Seznam příloh
 
-### 🔧 API dokumentace
+### API dokumentace
 
-#### REST Endpoints
+#### GET /health
 
-**GET /health**
+Health check endpoint. Vrací `{"status": "ok"}`.
 
-- Health check endpoint
-- Vrací: `{"status": "ok"}`
+#### GET /version.json
 
-**GET /version.json**
+Vrátí verzi aplikace (cached). Vrací `{"version": "YYYYMMDD.HHMM"}`.
 
-- Vrátí verzi aplikace z `version.json`
-- Vrací: `{"version": "YYYYMMDD.HHMM"}`
+#### GET /api/projects
 
-**GET /api/projects**
+Vrátí seznam existujících projektů.
 
-- Vrátí seznam všech existujících projektů (adresářů v `ROOT_FOLDER`)
-- Vrací: `{"projects": ["projekt1", "projekt2", ...]}`
+- **Query parametry:**
+  - `include_others` (bool, default: `false`) -- `false` = projekty z inbox složky, `true` = všechny ostatní
+- **Odpověď:** `{"projects": ["projekt1", "projekt2", ...]}`
 
-**POST /api/convert-email**
+#### GET /api/projects/{project_name}/emails
 
-- Konvertuje .eml soubor na Markdown
+Vrátí seznam emailů (markdown souborů) v projektu, seřazených od nejnovějšího.
+
+- **Odpověď:**
+  ```json
+  {
+    "emails": [
+      {
+        "filename": "2026-01-06_14-17-30_subject-slug.md",
+        "date": "2026-01-06T14:17:30",
+        "from": "user@example.com",
+        "subject": "Předmět emailu"
+      }
+    ]
+  }
+  ```
+- **Chyby:** `404` pokud projekt neexistuje
+
+#### POST /api/convert-email
+
+Konvertuje .eml soubor na Markdown.
+
 - **Parametry** (multipart/form-data):
   - `file`: .eml soubor (povinný)
   - `project_name`: Název projektu (povinný)
-- **Úspěšná odpověď** (200):
+- **Odpověď (200):**
   ```json
   {
     "status": "success",
-    "project_name": "název-projektu",
+    "project_name": "nazev_projektu",
     "filename": "2026-01-06_14-17-30_subject-slug.md",
-    "path": "/app/output/název-projektu/2026-01-06_14-17-30_subject-slug.md"
+    "path": "/app/output/_from_email/nazev_projektu/2026-01-06_14-17-30_subject-slug.md"
   }
   ```
-- **Chyby**:
+- **Chyby:**
   - `400`: Neplatný soubor nebo chybějící název projektu
-  - `409`: Soubor s daným datum_čas již existuje
+  - `409`: Soubor s daným datum_čas již existuje (duplikát)
   - `500`: Interní chyba serveru
 
-**GET /**
-
-- Servuje aplikaci (index.html)
-
-**GET /{full_path:path}**
-
-- Catch-all route - servuje index.html pro všechny non-API routes
-
-### 💻 Vývoj
+### Vývoj
 
 #### Přidání nových funkcí
 
-1. **Backend změny**:
+- **Backend**: `backend/main.py` (endpointy), `backend/services/email_processor.py` (logika), `backend/models/schemas.py` (modely)
+- **Frontend**: `static/app.js` (hlavní logika), `static/components/` (ES6 moduly), `static/styles/` (CSS)
 
-   - Hlavní aplikace: `backend/main.py`
-   - Business logika: `backend/services/email_processor.py`
-   - Data modely: `backend/models/schemas.py`
-2. **Frontend změny**:
+#### Lokální testování
 
-   - UI logika: `static/app.js`
-   - Komponenty: `static/components/` (ES6 moduly)
-   - Styly: `static/styles/` (používejte box-style komponenty)
-
-#### Testování
-
-- **Lokální testování**: Spusťte aplikaci pomocí `docker compose up -d --build` a otestujte všechny funkce
-- **Testování REST API**: Použijte nástroje jako Postman nebo curl pro testování REST endpointů
-- **Testování frontendu**: Otevřete `http://localhost:8000` a otestujte drag & drop upload
+```bash
+docker compose up -d --build
+# Otevřete http://localhost:8000
+```
 
 #### Debugging
 
-- Nastavte `LOG_LEVEL=DEBUG` v `docker-compose.yml` pro detailní logy (pokud je podporováno)
-- Server loguje všechny důležité události
+- Nastavte `LOG_LEVEL=DEBUG` v `docker-compose.yml` pro detailní logy
 - Frontend loguje chyby do konzole prohlížeče
 - Výstupní soubory jsou v `./output/` složce
 
-#### Úroveň logování (`LOG_LEVEL`)
+### Známé problémy
 
-- `DEBUG` - zobrazí všechny logy včetně detailních debug informací (vývoj)
-- `INFO` - zobrazí informační logy (výchozí, vhodné pro testování)
-- `WARNING` - zobrazí pouze varování a chyby (doporučeno pro produkci)
-- `ERROR` - zobrazí pouze chyby (minimální logování)
-- `CRITICAL` - zobrazí pouze kritické chyby
+- Kontrola duplicit je pouze podle datum_čas, ne podle obsahu emailu
+- Název projektu je automaticky normalizován (diakritika odstraněna, mezery nahrazeny podtržítkem)
 
-Pro produkci doporučujeme nastavit `LOG_LEVEL=WARNING` nebo `LOG_LEVEL=ERROR`.
-
-### 🎨 UI/UX
-
-Aplikace používá **box-style komponenty** pro konzistentní vzhled:
-
-- Všechny komponenty mají boxový vzhled s rámečky
-- Konzistentní barvy a rozestupy
-- Responzivní design
-- Drag & drop upload s vizuálním feedbackem
-- Zobrazení průběhu zpracování
-- Zobrazení úspěšných/chybných zpráv
-
-### 🐛 Známé problémy
-
-- Aplikace kontroluje duplicity pouze podle datum_čas, ne podle obsahu emailu
-- Velké přílohy mohou zpomalit zpracování
-- Název projektu je automaticky normalizován (odstranění diakritiky, speciálních znaků, mezery nahrazeny podtržítkem)
-
-### 📚 Další zdroje
-
-- [FastAPI dokumentace](https://fastapi.tiangolo.com/)
-- [ES6 moduly](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)
-- [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
-- [Docker dokumentace](https://docs.docker.com/)
-- [GitHub Actions dokumentace](https://docs.github.com/en/actions)
-- [mail-parser dokumentace](https://github.com/SpamScope/mail-parser)
-
-## 📄 Licence
+## Licence
 
 Tento projekt je vytvořen pro vzdělávací účely.

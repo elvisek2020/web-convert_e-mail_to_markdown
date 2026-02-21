@@ -59,9 +59,8 @@ class App {
   }
 
   initComponents() {
-    // Dropzone
     const dropzoneContainer = document.getElementById('dropzone-container');
-    this.dropzone = new Dropzone(dropzoneContainer, (file) => this.handleFileDrop(file));
+    this.dropzone = new Dropzone(dropzoneContainer, (files) => this.handleFilesDrop(files));
 
     // Processing Status
     const processingOverlay = document.getElementById('processing-overlay');
@@ -126,28 +125,60 @@ class App {
     }
   }
 
-  async handleFileDrop(file) {
-    if (!file.name.endsWith('.eml')) {
-      alert('Prosím nahrajte pouze .eml soubory');
-      return;
-    }
-
+  async handleFilesDrop(files) {
     if (!this.state.projectName || !this.state.projectName.trim()) {
       alert('Prosím zadejte název projektu');
       return;
     }
 
-    try {
-      this.setState({ status: 'converting' });
-      this.messageBanner.hide();
+    const emlFiles = files.filter(f => f.name.endsWith('.eml'));
+    if (emlFiles.length === 0) {
+      alert('Prosím nahrajte pouze .eml soubory');
+      return;
+    }
 
-      // Použít REST API pro všechny soubory
-      await this.sendFileViaREST(file);
-    } catch (error) {
-      console.error('Chyba při zpracování:', error);
-      this.setState({ status: 'idle' });
-      const errorMsg = error.message || 'Nastala chyba při zpracování emailu';
-      this.messageBanner.showError(errorMsg);
+    this.setState({ status: 'converting' });
+    this.messageBanner.hide();
+
+    const total = emlFiles.length;
+    let success = 0;
+    let skipped = 0;
+    const errors = [];
+
+    for (let i = 0; i < total; i++) {
+      this.processingStatus.render('converting', i + 1, total);
+      try {
+        await this.sendFileViaREST(emlFiles[i]);
+        success++;
+      } catch (error) {
+        if (error.statusCode === 409) {
+          skipped++;
+        } else {
+          errors.push(`${emlFiles[i].name}: ${error.message}`);
+        }
+      }
+    }
+
+    this.setState({ status: 'idle' });
+
+    if (this.projectList) {
+      await this.projectList.loadProjects();
+    }
+    if (this.emailList && this.state.projectName) {
+      await this.emailList.loadEmails(this.state.projectName);
+    }
+
+    if (total === 1 && success === 1) {
+      this.messageBanner.showSuccess('Email byl úspěšně uložen');
+    } else if (errors.length === 0) {
+      const parts = [`${success} uloženo`];
+      if (skipped > 0) parts.push(`${skipped} přeskočeno (duplikát)`);
+      this.messageBanner.showSuccess(`Hotovo: ${parts.join(', ')}`);
+    } else {
+      const parts = [`${success} uloženo`];
+      if (skipped > 0) parts.push(`${skipped} přeskočeno`);
+      parts.push(`${errors.length} chyb`);
+      this.messageBanner.showError(`${parts.join(', ')}. ${errors[0]}`);
     }
   }
 
@@ -158,28 +189,17 @@ class App {
 
     const response = await fetch('/api/convert-email', {
       method: 'POST',
-      body: formData
+      body: formData,
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
+      const err = new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
+      err.statusCode = response.status;
+      throw err;
     }
 
-    const result = await response.json();
-    this.setState({ status: 'idle' });
-    const message = `Email byl úspěšně uložen: ${result.filename}`;
-    this.messageBanner.showSuccess(message);
-    
-    // Aktualizovat seznam projektů po úspěšném uložení
-    if (this.projectList) {
-      await this.projectList.loadProjects();
-    }
-    
-    // Aktualizovat seznam emailů, pokud je projekt vybrán
-    if (this.emailList && this.state.projectName) {
-      await this.emailList.loadEmails(this.state.projectName);
-    }
+    return await response.json();
   }
 
   setState(newState) {

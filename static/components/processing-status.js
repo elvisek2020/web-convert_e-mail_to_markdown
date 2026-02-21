@@ -4,14 +4,12 @@
 export class ProcessingStatus {
   constructor(container) {
     this.container = container;
-    this.statusMessages = {
-      converting: 'Konvertuji email do markdown...'
-    };
   }
 
-  render(status = 'converting') {
-    const message = this.statusMessages[status] || 'Zpracovávám...';
-    
+  render(status = 'converting', current = 0, total = 0) {
+    const progressText = total > 1 ? ` (${current}/${total})` : '';
+    const message = `Konvertuji email${total > 1 ? 'y' : ''} do markdown...${progressText}`;
+
     this.container.innerHTML = `
       <div class="processing-status box">
         <div class="processing-content">

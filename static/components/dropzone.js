@@ -1,10 +1,10 @@
 /**
- * Dropzone komponenta pro drag & drop upload
+ * Dropzone komponenta pro drag & drop upload (single + multi-file)
  */
 export class Dropzone {
-  constructor(container, onFileDrop) {
+  constructor(container, onFilesDrop) {
     this.container = container;
-    this.onFileDrop = onFileDrop;
+    this.onFilesDrop = onFilesDrop;
     this.isDragging = false;
     this.init();
   }
@@ -19,16 +19,17 @@ export class Dropzone {
       <div class="dropzone" id="dropzone">
         <div class="dropzone-content">
           <div class="dropzone-icon">📧</div>
-          <h2 class="dropzone-title">Přetáhněte .eml soubor sem</h2>
-          <p class="dropzone-subtitle">nebo klikněte pro výběr souboru</p>
+          <h2 class="dropzone-title">Přetáhněte .eml soubory sem</h2>
+          <p class="dropzone-subtitle">nebo klikněte pro výběr souborů (i více najednou)</p>
           <input
             type="file"
             accept=".eml"
+            multiple
             class="dropzone-input"
             id="file-input"
           />
           <label for="file-input" class="dropzone-button">
-            Vybrat soubor
+            Vybrat soubory
           </label>
         </div>
       </div>
@@ -39,12 +40,9 @@ export class Dropzone {
   }
 
   attachEvents() {
-    // Drag & drop events
     this.dropzone.addEventListener('dragover', (e) => this.handleDragOver(e));
     this.dropzone.addEventListener('dragleave', (e) => this.handleDragLeave(e));
     this.dropzone.addEventListener('drop', (e) => this.handleDrop(e));
-    
-    // File input change
     this.fileInput.addEventListener('change', (e) => this.handleFileInput(e));
   }
 
@@ -65,24 +63,22 @@ export class Dropzone {
     this.isDragging = false;
     this.dropzone.classList.remove('dragging');
 
-    const files = Array.from(e.dataTransfer.files);
-    const emlFile = files.find(f => f.name.endsWith('.eml'));
+    const emlFiles = Array.from(e.dataTransfer.files).filter(f => f.name.endsWith('.eml'));
 
-    if (emlFile) {
-      this.onFileDrop(emlFile);
+    if (emlFiles.length > 0) {
+      this.onFilesDrop(emlFiles);
     } else {
       alert('Prosím nahrajte pouze .eml soubory');
     }
   }
 
   handleFileInput(e) {
-    const file = e.target.files[0];
-    if (file && file.name.endsWith('.eml')) {
-      this.onFileDrop(file);
+    const emlFiles = Array.from(e.target.files).filter(f => f.name.endsWith('.eml'));
+    if (emlFiles.length > 0) {
+      this.onFilesDrop(emlFiles);
     } else {
-      alert('Prosím vyberte .eml soubor');
+      alert('Prosím vyberte .eml soubory');
     }
-    // Reset input
     e.target.value = '';
   }
 
