@@ -24,6 +24,7 @@ app = FastAPI(title="Convert e-mail to Markdown")
 
 ROOT_FOLDER = os.getenv("ROOT_FOLDER", "/app/output")
 INBOX_FOLDER = os.getenv("INBOX_FOLDER", "_from_email")
+INBOX_SUBFOLDER = "_01_inbox"
 email_processor = EmailProcessor(ROOT_FOLDER)
 
 
@@ -170,7 +171,9 @@ async def get_project_emails(project_name: str):
         if project_path is None:
             raise HTTPException(status_code=404, detail="Projekt neexistuje")
 
-        emails = await asyncio.to_thread(_list_emails, project_path)
+        inbox_sub = project_path / INBOX_SUBFOLDER
+        emails_root = inbox_sub if inbox_sub.is_dir() else project_path
+        emails = await asyncio.to_thread(_list_emails, emails_root)
         return {"emails": emails}
 
     except HTTPException:

@@ -17,6 +17,8 @@ from models.schemas import EmailMetadata
 
 logger = logging.getLogger("app.email_processor")
 
+INBOX_SUBFOLDER = "_01_inbox"
+
 
 class EmailProcessor:
     def __init__(self, root_folder: str):
@@ -160,15 +162,17 @@ class EmailProcessor:
         else:
             project_path = self.root_folder / project_name
 
-        attachments_path = project_path / "attachments"
+        emails_path = project_path / INBOX_SUBFOLDER
+        attachments_path = emails_path / "attachments"
 
         project_path.mkdir(parents=True, exist_ok=True)
+        emails_path.mkdir(parents=True, exist_ok=True)
         attachments_path.mkdir(parents=True, exist_ok=True)
 
         slug = self._slugify(email_data.subject)
         date_str = email_data.date.strftime("%Y-%m-%d_%H-%M-%S")
         md_filename = f"{date_str}_{slug}.md"
-        md_path = project_path / md_filename
+        md_path = emails_path / md_filename
 
         if md_path.exists():
             raise FileExistsError(f"Soubor {md_filename} již existuje v projektu {project_name}")
