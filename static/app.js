@@ -127,7 +127,7 @@ class App {
 
   async handleFilesDrop(files) {
     if (!this.state.projectName || !this.state.projectName.trim()) {
-      alert('Prosím zadejte název projektu');
+      this.messageBanner.showError('Prosím zadejte název projektu');
       return;
     }
 
