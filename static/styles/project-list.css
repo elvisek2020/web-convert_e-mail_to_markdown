@@ -12,6 +12,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .project-list-title {
@@ -62,7 +64,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .project-list-items {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -85,6 +87,10 @@
   color: var(--text-primary);
   user-select: none;
   text-align: center;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .project-item:hover {
@@ -107,4 +113,3 @@
   font-style: italic;
   transition: color 0.3s ease;
 }
-
