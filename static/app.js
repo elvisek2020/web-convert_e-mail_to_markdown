@@ -131,7 +131,7 @@ class App {
       return;
     }
 
-    const emlFiles = files.filter(f => f.name.endsWith('.eml'));
+    const emlFiles = files.filter(f => f.name.toLowerCase().endsWith('.eml'));
     if (emlFiles.length === 0) {
       alert('Prosím nahrajte pouze .eml soubory');
       return;
@@ -144,20 +144,33 @@ class App {
     let success = 0;
     let skipped = 0;
     const errors = [];
+    let completed = 0;
 
-    for (let i = 0; i < total; i++) {
-      this.processingStatus.render('converting', i + 1, total);
-      try {
-        await this.sendFileViaREST(emlFiles[i]);
-        success++;
-      } catch (error) {
-        if (error.statusCode === 409) {
-          skipped++;
-        } else {
-          errors.push(`${emlFiles[i].name}: ${error.message}`);
+    this.processingStatus.render(0, total);
+
+    const CONCURRENCY = 3;
+    const queue = [...emlFiles];
+    const processNext = async () => {
+      while (queue.length > 0) {
+        const file = queue.shift();
+        try {
+          await this.sendFileViaREST(file);
+          success++;
+        } catch (error) {
+          if (error.statusCode === 409) {
+            skipped++;
+          } else {
+            errors.push(`${file.name}: ${error.message}`);
+          }
         }
+        completed++;
+        this.processingStatus.render(completed, total);
       }
-    }
+    };
+
+    await Promise.all(
+      Array.from({ length: Math.min(CONCURRENCY, total) }, processNext)
+    );
 
     this.setState({ status: 'idle' });
 
@@ -219,7 +232,7 @@ class App {
 
     // Zobrazit/skrýt processing overlay
     if (this.state.status === 'converting') {
-      this.processingStatus.render('converting');
+      this.processingStatus.render();
       this.processingStatus.show();
       if (this.dropzone) {
         this.dropzone.setEnabled(false);

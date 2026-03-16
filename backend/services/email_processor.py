@@ -35,15 +35,27 @@ class EmailProcessor:
         name = name.strip(". ")
         return name or "unknown"
 
+    MAX_UPLOAD_SIZE = 50 * 1024 * 1024  # 50 MB
+
     async def save_temp_file(self, file) -> Path:
-        """Uloží uploadovaný soubor dočasně s unikátním názvem."""
+        """Uloží uploadovaný soubor dočasně s unikátním názvem (streaming, s limitem velikosti)."""
         suffix = Path(file.filename).suffix if file.filename else ".eml"
         unique_name = f"{uuid.uuid4().hex}{suffix}"
         temp_path = self.temp_dir / unique_name
 
-        with open(temp_path, "wb") as f:
-            content = await file.read()
-            f.write(content)
+        total = 0
+        try:
+            with open(temp_path, "wb") as f:
+                while chunk := await file.read(65536):
+                    total += len(chunk)
+                    if total > self.MAX_UPLOAD_SIZE:
+                        raise ValueError(
+                            f"Soubor je příliš velký (max {self.MAX_UPLOAD_SIZE // 1024 // 1024} MB)"
+                        )
+                    f.write(chunk)
+        except Exception:
+            temp_path.unlink(missing_ok=True)
+            raise
 
         return temp_path
 
@@ -66,8 +78,11 @@ class EmailProcessor:
         attachments = []
         inline_images = []
         if mail.attachments:
+            seen_names: set[str] = set()
             for att in mail.attachments:
                 safe_name = self._sanitize_filename(att.get("filename", "unknown"))
+                safe_name = self._make_unique_name(safe_name, seen_names)
+                seen_names.add(safe_name)
                 att_data = {
                     "filename": safe_name,
                     "content_type": att.get("content_type", "application/octet-stream"),
@@ -114,10 +129,23 @@ class EmailProcessor:
         text = unicodedata.normalize("NFKD", text)
         text = text.encode("ascii", "ignore").decode("ascii")
         text = text.lower()
-        text = re.sub(r"[^a-z0-9_-]", "", text)
-        text = re.sub(r"[-\s]+", "-", text)
+        text = re.sub(r"\s+", "-", text)           # mezery → pomlčky
+        text = re.sub(r"[^a-z0-9_-]", "", text)   # odstranit ostatní znaky
+        text = re.sub(r"-+", "-", text)            # sloučit vícenásobné pomlčky
         text = text[:max_length]
         return text.strip("-")
+
+    @staticmethod
+    def _make_unique_name(name: str, seen: set) -> str:
+        """Vrátí unikátní název souboru přidáním čítače pokud již existuje."""
+        if name not in seen:
+            return name
+        stem = Path(name).stem
+        ext = Path(name).suffix
+        counter = 1
+        while f"{stem}_{counter}{ext}" in seen:
+            counter += 1
+        return f"{stem}_{counter}{ext}"
 
     @staticmethod
     def _resolve_payload(payload) -> bytes | None:
@@ -174,9 +202,6 @@ class EmailProcessor:
         md_filename = f"{date_str}_{slug}.md"
         md_path = emails_path / md_filename
 
-        if md_path.exists():
-            raise FileExistsError(f"Soubor {md_filename} již existuje v projektu {project_name}")
-
         attachment_payloads: dict[str, bytes] = {}
         inline_image_payloads: dict[str, bytes] = {}
 
@@ -185,9 +210,12 @@ class EmailProcessor:
             mail = mailparser.parse_from_file(str(temp_eml_path))
 
         if mail and mail.attachments:
+            seen_names: set[str] = set()
             for att in mail.attachments:
                 raw_name = att.get("filename", "unknown")
                 safe_name = self._sanitize_filename(raw_name)
+                safe_name = self._make_unique_name(safe_name, seen_names)
+                seen_names.add(safe_name)
                 payload = self._resolve_payload(att.get("payload"))
                 if payload is None:
                     logger.warning("Nelze dekódovat přílohu: %s", safe_name)
@@ -207,7 +235,12 @@ class EmailProcessor:
             "attachments": [att["filename"] for att in email_data.attachments],
         }
 
-        with open(md_path, "w", encoding="utf-8") as f:
+        # Atomické vytvoření souboru (ochrana proti TOCTOU race condition)
+        try:
+            f = open(md_path, "x", encoding="utf-8")
+        except FileExistsError:
+            raise FileExistsError(f"Soubor {md_filename} již existuje v projektu {project_name}")
+        with f:
             f.write("---\n")
             f.write(yaml.dump(front_matter, allow_unicode=True, default_flow_style=False))
             f.write("---\n\n")

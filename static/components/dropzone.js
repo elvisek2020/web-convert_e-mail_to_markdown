@@ -63,7 +63,7 @@ export class Dropzone {
     this.isDragging = false;
     this.dropzone.classList.remove('dragging');
 
-    const emlFiles = Array.from(e.dataTransfer.files).filter(f => f.name.endsWith('.eml'));
+    const emlFiles = Array.from(e.dataTransfer.files).filter(f => f.name.toLowerCase().endsWith('.eml'));
 
     if (emlFiles.length > 0) {
       this.onFilesDrop(emlFiles);
@@ -73,7 +73,7 @@ export class Dropzone {
   }
 
   handleFileInput(e) {
-    const emlFiles = Array.from(e.target.files).filter(f => f.name.endsWith('.eml'));
+    const emlFiles = Array.from(e.target.files).filter(f => f.name.toLowerCase().endsWith('.eml'));
     if (emlFiles.length > 0) {
       this.onFilesDrop(emlFiles);
     } else {

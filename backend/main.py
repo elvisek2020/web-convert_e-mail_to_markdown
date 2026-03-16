@@ -121,10 +121,13 @@ async def get_projects(include_others: bool = False):
         raise HTTPException(status_code=500, detail="Interní chyba serveru")
 
 
-def _list_emails(project_path: Path) -> list[dict]:
+def _list_emails(project_path: Path, limit: int = 500) -> list[dict]:
     emails = []
 
-    for md_file in project_path.glob("*.md"):
+    # Seřadit soubory podle názvu sestupně (názvy začínají datem) a omezit počet
+    md_files = sorted(project_path.glob("*.md"), key=lambda f: f.name, reverse=True)[:limit]
+
+    for md_file in md_files:
         try:
             with open(md_file, "r", encoding="utf-8") as f:
                 content = f.read()
@@ -217,7 +220,7 @@ async def convert_email(
     project_name: str = Form(...),
 ):
     """Konvertuje .eml soubor na markdown a uloží do projektu."""
-    if not file.filename or not file.filename.endswith(".eml"):
+    if not file.filename or not file.filename.lower().endswith(".eml"):
         raise HTTPException(status_code=400, detail="Soubor musí být .eml")
 
     if not project_name or not project_name.strip():
@@ -263,6 +266,8 @@ async def convert_email(
 
     except FileExistsError as e:
         raise HTTPException(status_code=409, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=413, detail=str(e))
     except HTTPException:
         raise
     except Exception:

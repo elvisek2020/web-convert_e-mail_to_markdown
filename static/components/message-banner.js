@@ -21,9 +21,11 @@ export class MessageBanner {
       clearTimeout(this.hideTimeout);
     }
 
-    // Nastavit třídu a obsah
+    // Nastavit třídu a obsah bezpečně (bez innerHTML s uživatelskými daty)
     this.container.className = `message-banner ${type}`;
-    this.container.innerHTML = `<p>${type === 'success' ? '✅' : '❌'} ${message}</p>`;
+    const p = document.createElement('p');
+    p.textContent = `${type === 'success' ? '✅' : '❌'} ${message}`;
+    this.container.replaceChildren(p);
     this.container.style.display = 'block';
 
     // Skrýt po 5 sekundách

@@ -75,12 +75,7 @@ export class ThemeToggle {
     // Přidat event listener
     const toggleButton = this.container.querySelector('.theme-toggle-button');
     if (toggleButton) {
-      // Odstranit případné existující listenery
-      const newButton = toggleButton.cloneNode(true);
-      toggleButton.parentNode.replaceChild(newButton, toggleButton);
-      
-      // Přidat nový listener
-      newButton.addEventListener('click', (e) => {
+      toggleButton.addEventListener('click', (e) => {
         e.preventDefault();
         this.toggle();
       });

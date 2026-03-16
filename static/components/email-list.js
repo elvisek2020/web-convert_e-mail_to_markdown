@@ -7,6 +7,22 @@ export class EmailList {
     this.emails = [];
   }
 
+  _formatDate(dateStr) {
+    if (!dateStr) return '';
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleString('cs-CZ', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return dateStr;
+    }
+  }
+
   async loadEmails(projectName) {
     if (!projectName) {
       this.render([]);
@@ -47,28 +63,11 @@ export class EmailList {
     }
 
     this.container.style.display = 'block';
-    
-    // Formátovat datum pro zobrazení
-    const formatDate = (dateStr) => {
-      if (!dateStr) return '';
-      try {
-        const date = new Date(dateStr);
-        return date.toLocaleString('cs-CZ', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-      } catch {
-        return dateStr;
-      }
-    };
 
     const emailsHtml = emails
       .map((email) => `
         <tr class="email-row">
-          <td class="email-date">${this.escapeHtml(formatDate(email.date))}</td>
+          <td class="email-date">${this.escapeHtml(this._formatDate(email.date))}</td>
           <td class="email-from">${this.escapeHtml(email.from || '')}</td>
           <td class="email-subject">${this.escapeHtml(email.subject || '')}</td>
         </tr>

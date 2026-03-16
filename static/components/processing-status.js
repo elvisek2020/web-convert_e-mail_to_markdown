@@ -6,7 +6,7 @@ export class ProcessingStatus {
     this.container = container;
   }
 
-  render(status = 'converting', current = 0, total = 0) {
+  render(current = 0, total = 0) {
     const progressText = total > 1 ? ` (${current}/${total})` : '';
     const message = `Konvertuji email${total > 1 ? 'y' : ''} do markdown...${progressText}`;
 
